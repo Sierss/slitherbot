@@ -54,8 +54,8 @@ var redraw = function() {
 	for (var i=0,max=foods.length;i<max;i++) {
 		var food = foods[i];
 		if (food === null) continue;
-		var x = mx + (food.xx - view_xx);
-		var y = my + (food.yy - view_yy);
+		var x = mx + (food.xx - view_xx)*gsc;
+		var y = my + (food.yy - view_yy)*gsc;
 		c.fillStyle = "#FF00FF";
 		c.fillRect(x-5,y-5,10,10);
 
