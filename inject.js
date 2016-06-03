@@ -26,7 +26,7 @@ var redraw = function() {
 		var snake = snakes[i];
 
 		//draw head angle
-		getSnakeHeadAngle(c,snake);
+		getSnakeheadAngle(c,snake);
 
 		//the accurate snake head position reconstruction
 		//implementing line 2022 beautified from redraw() render_mode == 1; recompiling snake position accurately
@@ -92,7 +92,7 @@ function findClosestFood(foodscreenpos, x, y) {
 	}
 	return closestFood;
 }
-function getSnakeHeadAngle(c,snake) {
+function getSnakeheadAngle(c,snake) {
 	//mid of screen
 	var mx = mc.width/2;
 	var my = mc.height/2;
