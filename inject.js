@@ -5,8 +5,8 @@ var redraw_;
 if (!redraw_) redraw_ = redraw;
 
 render_mode = 1;
-var foodrel;
-var closestfood;
+var foodRel;
+var closestFood;
 //executes additional after the original function is done
 var redraw = function() {
 	redraw_();
@@ -20,15 +20,16 @@ var redraw = function() {
 	c.fillStyle = "#000000";
 	c.fillRect(mx-5,my-5,10,10);//center the square
 
+
 	//loop through each snake
 	for(var i=0,max=snakes.length;i<max;i++) {
 		var snake = snakes[i];
 
 		//draw head angle
-		getsnakeheadangle(c,snake);
+		getSnakeHeadAngle(c,snake);
 
 		//the accurate snake head position reconstruction
-		//now longer experimental -- implementing line 2022 beautified from redraw() render_mode == 1; recompiling snake position accurately
+		//implementing line 2022 beautified from redraw() render_mode == 1; recompiling snake position accurately
 		var x = mx + (snake.xx + snake.fx - view_xx) * gsc; // line 2036
 		var y = my + (snake.yy + snake.fy - view_yy) * gsc;
 		c.fillStyle = "#00FFFF";
@@ -40,8 +41,6 @@ var redraw = function() {
 
 		//draw the tail of each snake
 		for (var f=snake.pts.length-1,fmin=0;f>=fmin&&f>=snake.pts.length-snake.cfl;f--) {
-			//EXPERIMENTAL -- snake head method does not seem to work out the same way for the tail
-			//todo: reverse engineer this line of code: 2047 
 			var pt = snake.pts[f];
 			var ptx = mx + (pt.xx + pt.fx - view_xx) * gsc;
 			var pty = my + (pt.yy + pt.fy - view_yy) * gsc;
@@ -51,49 +50,49 @@ var redraw = function() {
 		c.stroke();
 	}
 	//relative food positions
-	foodrel = [];
+	foodRel = [];
 
 	//draw the food
 	for (var i=0,max=foods.length;i<max;i++) {
 		var food = foods[i];
 		if (food === null) continue;
-		var x = mx + (food.xx - view_xx)*gsc;
-		var y = my + (food.yy - view_yy)*gsc;
+		var x = getScreenX(food.xx);
+		var y = getScreenY(food.yy);
 		c.fillStyle = "#FF00FF";
 		c.fillRect(x-5,y-5,10,10);
 
-		foodrel.push([x,y]);
+		foodRel.push([x,y]);
 	}
 
 	//find the closest food
-	closestfood = findclosestfood(foodrel, mx, my);
+	closestFood = findClosestFood(foodRel, mx, my);
 
 	//draw line to closest food
 	c.strokeStyle="#FFFFFF";
 	c.beginPath();
 	c.moveTo(mx,my);
-	c.lineTo(closestfood[0],closestfood[1]);
+	c.lineTo(closestFood[0],closestFood[1]);
 	c.stroke();
 
 	//move mouse to best position
-	movemouse(closestfood[0],closestfood[1]);
+	moveMouse(closestFood[0],closestFood[1]);
 }
 
-function findclosestfood(foodscreenpos, x, y) {
-	var closestfood = [];
+function findClosestFood(foodscreenpos, x, y) {
+	var closestFood = [];
 	var closestdistance = 10000;
 	for (var i=0,max=foodscreenpos.length;i<max;i++){
 		var foodx = foodscreenpos[i][0];
 		var foody = foodscreenpos[i][1];
 		var distance = Math.sqrt(Math.pow(foodx-x,2)+Math.pow(foody-y,2));
 		if (closestdistance > distance) {
-			closestfood = [foodx,foody];
+			closestFood = [foodx,foody];
 			closestdistance = distance;
 		}
 	}
-	return closestfood;
+	return closestFood;
 }
-function getsnakeheadangle(c,snake) {
+function getSnakeHeadAngle(c,snake) {
 	//mid of screen
 	var mx = mc.width/2;
 	var my = mc.height/2;
@@ -102,13 +101,13 @@ function getsnakeheadangle(c,snake) {
 	var r = 100;
 
 	//snake head
-	var x = mx + (snake.xx + snake.fx - view_xx) * gsc;
-	var y = my + (snake.yy + snake.fy - view_yy) * gsc;
+	var x = getScreenX(snake.xx + snake.fx);
+	var y = getScreenY(snake.yy + snake.fy);
 	var x1 = x+r*Math.cos(snake.wehang);
 	var y1 = y+r*Math.sin(snake.wehang);
 	var x2 = x+r*Math.cos(snake.wang);
 	var y2 = y+r*Math.sin(snake.wang);
-	
+
 	//draw the line
 	c.strokeStyle="#FFFFFF";
 	c.beginPath();
@@ -131,10 +130,12 @@ window.onmousemove = function() {
 };
 
 //control mouse 
-movemouse = function(x,y) {
+moveMouse = function(x,y) {
+	//screen to game coordinates
 	sx = x*window.innerWidth/mc.width;
 	sy = y*window.innerHeight/mc.height;
-	xm = sx - ww / 2, ym = sy - hh / 2;
+	xm = sx - ww / 2, ym = sy - hh / 2;//xm and ym are read by the slither
+
 	var c = mc.getContext("2d");
 	//supposed to be
 	c.beginPath();
@@ -142,4 +143,12 @@ movemouse = function(x,y) {
 	c.fillStyle = '#0000FF';
 	c.fill();
 	c.stroke();
+}
+
+//game coordinates to screen cordinates
+function getScreenX(gameX) {
+	return mc.width/2 + (gameX - view_xx) * gsc;
+}
+function getScreenY(gameY) {
+	return mc.height/2 + (gameY - view_yy) * gsc;
 }
