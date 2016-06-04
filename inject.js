@@ -3,7 +3,7 @@
 //makes sure it doesn't loop into itself
 var redraw_;
 if (!redraw_) redraw_ = redraw;
-
+var botControl = true;
 render_mode = 1;
 var foodRel;
 var closestFood;
@@ -58,8 +58,11 @@ var redraw = function() {
 		if (food === null) continue;
 		var x = getScreenX(food.xx);
 		var y = getScreenY(food.yy);
-		c.fillStyle = "#FF00FF";
-		c.fillRect(x-5,y-5,10,10);
+		//c.fillStyle = "#FF00FF";
+		//c.fillRect(x-5,y-5,10,10);
+		c.font="20px Georgia";
+		c.fillStyle = "#FF0000";
+		c.fillText(food.cv2,x,y);
 
 		foodRel.push([x,y]);
 	}
@@ -100,13 +103,15 @@ function getSnakeheadAngle(c,snake) {
 	//radius of the line coming out of the snakes head for direction pointer
 	var r = 100;
 
-	//snake head
+	//snake head ehang == wang for other snakes except self
 	var x = getScreenX(snake.xx + snake.fx);
 	var y = getScreenY(snake.yy + snake.fy);
 	var x1 = x+r*Math.cos(snake.wehang);
 	var y1 = y+r*Math.sin(snake.wehang);
 	var x2 = x+r*Math.cos(snake.wang);
 	var y2 = y+r*Math.sin(snake.wang);
+	var x3 = x+r*Math.cos(snake.ang);
+	var y3 = y+r*Math.sin(snake.ang);
 
 	//draw the line
 	c.strokeStyle="#FFFFFF";
@@ -114,23 +119,30 @@ function getSnakeheadAngle(c,snake) {
 	c.moveTo(x,y);
 	c.lineTo(x1,y1);
 	c.stroke();
-	//what
+
+	//what way the snake wants to go (not mouse) //not showing for other snakes
 	c.strokeStyle="#FF0000";
 	c.beginPath();
 	c.moveTo(x,y);
 	c.lineTo(x2,y2);
 	c.stroke();
 
+	//jumpy way the snake is pointing
+	c.strokeStyle="#FFFF00";
+	c.beginPath();
+	c.moveTo(x,y);
+	c.lineTo(x3,y3);
+	c.stroke();
 }
-window.onmousemove = function() {
+window.onmousemove = function(b) {
 	//original code is over written for the bot
-	/*window.onmousemove = function(b) {
-	 (b = b || window.event) && "undefined" != typeof b.clientX && (xm = b.clientX - ww / 2, ym = b.clientY - hh / 2)
-	};*/
+	if (botControl) return;
+	(b = b || window.event) && "undefined" != typeof b.clientX && (xm = b.clientX - ww / 2, ym = b.clientY - hh / 2)
 };
 
 //control mouse 
 moveMouse = function(x,y) {
+	if (!botControl) return;
 	//screen to game coordinates
 	sx = x*window.innerWidth/mc.width;
 	sy = y*window.innerHeight/mc.height;
